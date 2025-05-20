@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sistem Manajemen Hewan - OOP</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      label {
+        display: block;
+        margin-top: 10px;
+      }
+      input,
+      select {
+        padding: 6px;
+        margin-top: 5px;
+        width: 250px;
+      }
+      button {
+        margin-top: 15px;
+        padding: 10px 15px;
+        background-color: #007b5e;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #output {
+        margin-top: 30px;
+        padding: 15px;
+        background: #f4f4f4;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .hewan-item {
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Sistem Manajemen Hewan di Kebun Binatang</h2>
+
+    <label for="nama">Nama Hewan:</label>
+    <input type="text" id="nama" placeholder="Contoh: Harimau" />
+
+    <label for="umur">Umur Hewan (tahun):</label>
+    <input type="number" id="umur" min="0" />
+
+    <label for="tipe">Jenis Hewan:</label>
+    <select id="tipe" onchange="tampilkanOpsiTambahan()">
+      <option value="">-- Pilih --</option>
+      <option value="mamalia">Mamalia</option>
+      <option value="burung">Burung</option>
+    </select>
+
+    <div id="opsi-tambahan"></div>
+
+    <button onclick="tambahHewan()">Tambah Hewan</button>
+
+    <div id="output">
+      <h3>Daftar Hewan:</h3>
+      <div id="daftar-hewan">Belum ada hewan ditambahkan.</div>
+    </div>
+
+    <script>
+      // Encapsulation: Kelas Dasar
+      class Hewan {
+        constructor(nama, umur) {
+          this._nama = nama;
+          this._umur = umur;
+        }
+        info() {
+          return `${this._nama}, ${this._umur} tahun`;
+        }
+      }
+
+      // Inheritance & Polymorphism: Mamalia
+      class Mamalia extends Hewan {
+        constructor(nama, umur, jenisBulu) {
+          super(nama, umur);
+          this._jenisBulu = jenisBulu;
+        }
+        info() {
+          return `Mamalia: ${super.info()}, Bulu: ${this._jenisBulu}`;
+        }
+      }
+
+      // Inheritance & Polymorphism: Burung
+      class Burung extends Hewan {
+        constructor(nama, umur, bisaTerbang) {
+          super(nama, umur);
+          this._bisaTerbang = bisaTerbang;
+        }
+        info() {
+          return `Burung: ${super.info()}, ${
+            this._bisaTerbang ? "bisa terbang" : "tidak bisa terbang"
+          }`;
+        }
+      }
+
+      const daftarHewan = [];
+
+      function tampilkanOpsiTambahan() {
+        const tipe = document.getElementById("tipe").value;
+        const div = document.getElementById("opsi-tambahan");
+        div.innerHTML = "";
+
+        if (tipe === "mamalia") {
+          div.innerHTML = `
+          <label for="bulu">Jenis Bulu:</label>
+          <input type="text" id="bulu" placeholder="Contoh: Tebal" />
+        `;
+        } else if (tipe === "burung") {
+          div.innerHTML = `
+          <label for="terbang">Bisa Terbang?</label>
+          <select id="terbang">
+            <option value="true">Ya</option>
+            <option value="false">Tidak</option>
+          </select>
+        `;
+        }
+      }
+
+      function tambahHewan() {
+        const nama = document.getElementById("nama").value.trim();
+        const umur = parseInt(document.getElementById("umur").value);
+        const tipe = document.getElementById("tipe").value;
+        let hewan;
+
+        if (!nama || isNaN(umur) || !tipe) {
+          alert("Harap lengkapi semua isian.");
+          return;
+        }
+
+        if (tipe === "mamalia") {
+          const bulu = document.getElementById("bulu")?.value.trim();
+          if (!bulu) {
+            alert("Masukkan jenis bulu untuk mamalia.");
+            return;
+          }
+          hewan = new Mamalia(nama, umur, bulu);
+        } else if (tipe === "burung") {
+          const terbang = document.getElementById("terbang")?.value === "true";
+          hewan = new Burung(nama, umur, terbang);
+        }
+
+        daftarHewan.push(hewan);
+        tampilkanDaftarHewan();
+        bersihkanForm();
+      }
+
+      function tampilkanDaftarHewan() {
+        const container = document.getElementById("daftar-hewan");
+        if (daftarHewan.length === 0) {
+          container.innerHTML = "Belum ada hewan ditambahkan.";
+          return;
+        }
+        container.innerHTML = "";
+        daftarHewan.forEach((h) => {
+          const el = document.createElement("div");
+          el.className = "hewan-item";
+          el.textContent = h.info();
+          container.appendChild(el);
+        });
+      }
+
+      function bersihkanForm() {
+        document.getElementById("nama").value = "";
+        document.getElementById("umur").value = "";
+        document.getElementById("tipe").value = "";
+        document.getElementById("opsi-tambahan").innerHTML = "";
+      }
+    </script>
+  </body>
+</html>
